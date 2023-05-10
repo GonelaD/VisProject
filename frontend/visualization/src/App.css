@@ -1,0 +1,43 @@
+.header{
+    background-color: black;
+    height:40px;
+    color: white;
+    width: 100%;
+    margin-top: 0px !important;
+    font-size: x-large;
+}
+
+.home{
+    width: 80%;
+    padding-left: 300px;
+    padding-right: 300px;
+}
+
+.map-selected {
+    fill: #E3DA37;
+  }
+  
+  .map-unselected {
+    fill: #699EAA;
+  }
+  
+  .map-selected:hover, .map-unselected:hover {
+    cursor: pointer;
+    fill:aqua
+  }
+
+  .box1 {
+    display: inline-block;
+    width: 25%;
+    margin-left: 20%;
+    height: 400px;
+    vertical-align: top;
+  }
+
+  .box2 {
+    display: inline-block;
+    width: 40%;
+    
+    height: 400px;
+    vertical-align: top;
+  }
