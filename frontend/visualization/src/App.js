@@ -18,6 +18,7 @@ import GeoChart from "../src/components/GeoChart";
 import data from "./GeoChart.world.geo.json";
 import { BarChart } from './components/BarChart';
 import { YearChart } from './components/YearChart';
+import { PieChart } from './components/PieChart';
 
 function App() {
 
@@ -28,7 +29,7 @@ function App() {
   const [mdsPcp, setMDSPCP] = useState();
   
   const [csvdata,setCsvdata] = useState();
-  const [country,setCountry] = useState(null);
+  const [country,setCountry] = useState("China");
 
 
   function changeCountry(ele){
@@ -81,11 +82,12 @@ function App() {
         </div>
         <div className="box1">
           {!country && csvdata && <BarChart csvdata={csvdata} country={country} changeCountry={changeCountry}/>}
-          {country && <YearChart country={country}/>} 
+          {/* {country && <YearChart country={country}/>}  */}
+          {country && <PieChart country={country} />}
         </div>
-        <div>
+        {/* <div>
           <Pcp country={country} />
-        </div>
+        </div> */}
         
          
           

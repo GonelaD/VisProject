@@ -61,13 +61,30 @@ kmeans_result = kmeans.fit_predict(scaled_data_o)
 raw_with_kmeans = scaled_data_o
 raw_with_kmeans['color']= kmeans_result
 
-# @app.after_request
-# def after_request(response):
-#     response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3000')
-#     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-#     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-#     response.headers.add('Access-Control-Allow-Credentials', 'true')
-#     return response
+@app.route('/getPieData')
+@cross_origin()
+def get_pie_data():
+    
+    # selected_cols = ['Borough','Postcode','Extremely Low Income Units','Program Group','Very Low Income Units','Low Income Units','Moderate Income Units','Middle Income Units','Counted Rental Units','Counted Homeownership Units','Total Units']
+    # df = pd.read_csv("env/bin/Housing_New_York_Units_by_Building.csv", usecols = selected_cols)
+    cols_to_use = ['Life Expectancy', 'Adult Mortality',
+       'Infant deaths', 'Alcohol', 'Hepatitis B', 'Measles', 'BMI',
+       'Under-five deaths', 'Polio', 'Total expenditure', 'Diphtheria',
+       'HIV/AIDS', 'Population','Country','Year']
+    df= pd.read_csv("LIFE_EXPECTANCY_WHO.csv",usecols=cols_to_use)
+    print(df.shape)
+    df.replace('', np.nan, inplace=True)
+    df.replace('Not Found', np.nan, inplace=True)
+    df.dropna( inplace=True)
+
+    new_df = scaled_data
+    new_df['Country'] = df['Country']
+
+    sum_by_category = new_df.groupby('Country').sum().reset_index()
+    print(sum_by_category.head())
+    # df['color']= scaled_data_o['color']
+    # df = df.sample(5)
+    return json.dumps(sum_by_category.to_json(orient='records'))
 
 @app.route('/getAllData')
 @cross_origin()
