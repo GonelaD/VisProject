@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from "d3";
 import axios from 'axios';
 
-export function PieChart({country}){
+export function PieChart({country,property,changeProperty}){
 
 
     const svgRef = useRef();
@@ -17,19 +17,26 @@ export function PieChart({country}){
 
         // set the dimensions and margins of the graph
         var width = 450,
-        height = 650,
+        height = 350,
         margin = 40
 
         // The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
-        var radius = Math.min(width, height) / 2 
+        var radius = Math.min(width, height) / 2;
 
         // append the svg object to the div called 'my_dataviz'
         var svg = d3.select(svgRef.current)
             .attr("width", width)
             .attr("height", height)
-            .style("background-color","red")
+            .style("margin-top","10%")
+            .style("margin-left","-8%")
+            // .style("background-color","pink")
             .append("g")
-            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
+        
+            // .attr("style", "outline: thin solid black;")
+        // svg.style('border', '1px solid black');
+           
+       
 
        // set the color scale
         // var color = d3.scaleOrdinal()
@@ -37,7 +44,7 @@ export function PieChart({country}){
         //     .range(d3.schemeSet2);
 
         // Compute the position of each group on the pie:
-        var pie = d3.pie().value(function(d) {return d.value; })
+        var pie = d3.pie().value(function(d) {return d.value+10; })
         console.log("here pie pie",pie)
 
         
@@ -48,53 +55,92 @@ export function PieChart({country}){
             .innerRadius(0)
             .outerRadius(radius)
 
+            // svg.append("text").transition().duration(1000).attr("text-anchor", "middle").attr("transform", "translate("+ (17) +","+(height/2)+")rotate(-90)").style("font", "16px times").style("font-family","Verdana, sans-serif").text("MDS 2");
+   
+
+            
+    
         // Generate the pie slices
     const slices = svg
         .selectAll('path')
         .data(pie(data))
         .enter()
             .append('path')
-        //     .text(function(d){ return "grp " + d.label})
-        // .attr("transform", function(d) { return "translate(" + arcGenerator.centroid(d) + ")";  })
-        // .style("text-anchor", "middle")
-        // .style("font-size", 17)
+
+   
+
+    // var colorScale = d3.scaleLinear().domain([min,max]).range(['#ffdacc','#ff6b33'])
+    // var colorScale = ['coral','#69b3a2','#008B8B','#00FA9A','royalblue']
+    var colorScale=["#ee9236","#c4b4cc","#7468a8","#eae2a2","#a36435"]
+
+  
 
     // Set the attributes for the slices
     slices
         .attr('d', arcGenerator)
-        .attr('fill', (d, i) => d3.schemeCategory10[i])
-        .attr('stroke', '#fff')
-        .append('text')
-        .text(d=>{
-            return d.data.label
+        .attr('fill',(d,i)=>{
+            console.log("color",d)
+            if(d.data.label == property) return "green"
+            return colorScale[i];
         })
-        // .attr("transform", function(d) { return "translate(" + arcGenerator.centroid(d) + ")" })
-        .style("text-anchor", "middle")
-        .style("color","white");
+        // .attr('fill', (d, i) => d3.schemeCategory10[i])
+        .attr('stroke', '#fff')
+        .on('mouseover',(d)=>{
+            console.log("mouse over",d);
+            // Calculate the percentage
+            const percent = ((d.endAngle - d.startAngle) / (2 * Math.PI)) * 100;
+            svg
+                .append('text')
+                .attr('class', 'tooltip')
+                
+                .attr('x', -45)
+                .attr('y', -30)
+                .text(`${percent.toFixed(2)}%`)
+                .style("fill","black")
+                .style("border","solid")
+                .style("font-size","20px")
+                .attr('transform', function() {
+                const centroid = arcGenerator.centroid(d);
+                return 'translate(' + centroid[0] + ',' + centroid[1] + ')';
+                });
+        })
+        .on('mouseout',(d)=>{
+            svg.select('.tooltip').remove();
+        })
+        .on('click',(d)=>{
+            console.log("clicked",d.data.label);
+            changeProperty(d.data.label);
+        })
 
-        // // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
-        // svg
-        //     .selectAll('mySlices')
-        //     .data(data_ready)
-        //     .enter()
-        //     .append('path')
-        //     .attr('d', arcGenerator)
-        //     .attr('fill','pink')
-        //     // .attr('fill', function(d){ return(color(d.data.key)) })
-        //     .attr("stroke", "black")
-        //     .style("stroke-width", "2px")
-        //     .style("opacity", 0.7)
+       
         
-        // Now add the annotation. Use the centroid method to get the best coordinates
-        // svg
-        // .selectAll('path')
-        // .data()
-        // .enter()
-        // .append('text')
-        // .text(function(d){ return "grp " + d.data.key})
-        // .attr("transform", function(d) { return "translate(" + arcGenerator.centroid(d) + ")";  })
-        // .style("text-anchor", "middle")
-        // .style("font-size", 17)
+    // Append text labels to the slices 
+        svg
+            .selectAll('text')
+            .data(pie(data))
+            .enter()
+            .append('text')
+            .attr('transform', function(d) {
+            const centroid = arcGenerator.centroid(d);
+            return 'translate(' + centroid[0] + ',' + centroid[1] + ')';
+            })
+            .attr('dy', '.35em')
+            .attr('text-anchor', 'middle')
+            .text(function(d) {
+            return  d.data.label;
+            })
+            .style('fill', 'black')
+            .style("font-size","11px");
+
+        
+        // svg.append("g")
+        // .append("text")
+        // .text("Pie Chart")
+        // .style("fill","white")
+        // .attr("x",0)
+        // .attr("y",-130)  
+
+        
 
 
     }
@@ -112,12 +158,15 @@ export function PieChart({country}){
             const allRepos = repos.data;
             let parsedResponse = JSON.parse(allRepos);
             let tmpData = [];
+            let cols =['Adult Mortality','Infant deaths','Under-five deaths']
+    
             parsedResponse.forEach((ele)=>{
                 if(ele.Country==country){
                    
                     console.log("here pie",ele)
                     for(var key in ele){
-                        if(key!='Country'){
+                        if(cols.includes(key)){
+
                             let obj = {};
                             obj.label = key;
                             obj.value = ele[key];
@@ -128,7 +177,11 @@ export function PieChart({country}){
                 }
             })
             console.log("tmp data",tmpData)
-            // tmpData = [...tmpData].sort((a,b)=>b.year - a.year)
+            tmpData = [...tmpData].sort((a,b)=>a.value - b.value)
+            // tmpData = tmpData.slice(0, 5);
+            // console.log("properyu",tmpData[4])
+            // changeProperty(tmpData[4].label);
+            
             clearBoard();
             
             draw(tmpData);
@@ -139,12 +192,13 @@ export function PieChart({country}){
         
         // draw(data);
         
-    },[country])
+    },[country,property])
     
     return (
-        <div ref={wrapperRef}>
-          <svg ref={svgRef} style={{width:"500px",height:"800px"}}>
+        <div ref={wrapperRef} style={{backgroundColor:"#101c3c",height:"450px"}} >
+          <svg ref={svgRef} >
           </svg>
+          <h3 style={{"color":"white","marginLeft":"28%",marginTop:"3%",position:"relative"}}>Influence of Deaths</h3>
         </div>
       );
 }

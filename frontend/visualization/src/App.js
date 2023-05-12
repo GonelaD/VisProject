@@ -6,8 +6,7 @@ import HomePage from '../src/components/HomePage';
 import ScreePlot from './components/ScreePlot';
 import BiPlot from './components/BiPlot';
 import ScatterPlotMatrix from './components/ScatterPlotMatrix';
-import ScatterPlot from './components/ScatterPlot';
-import Pcp from './components/Pcp';
+
 import MdsVariable from './components/MdsVariable';
 import barchartimg from './images/barchat.png';
 import worldmapimg from './images/worldmap.png'
@@ -16,9 +15,14 @@ import blankimg from './images/blank.png'
 
 import GeoChart from "../src/components/GeoChart";
 import data from "./GeoChart.world.geo.json";
-import { BarChart } from './components/BarChart';
 import { YearChart } from './components/YearChart';
 import { PieChart } from './components/PieChart';
+import ScatterPlot from './components/ScatterPlot';
+import Pcp from './components/Pcp';
+import { MultipleScatter } from './components/MultipleScatter';
+import videobg from './assets/videobg.mov';
+import wavebg from './assets/wavebg.mp4';
+import final3 from './assets/final3.mp4';
 
 function App() {
 
@@ -30,6 +34,11 @@ function App() {
   
   const [csvdata,setCsvdata] = useState();
   const [country,setCountry] = useState("China");
+  const [property,setProperty] = useState("Alcohol");
+  // const [refresh,setRefresh] = useState(false);
+  const [year,setYear] = useState();
+  const [val,setVal]= useState();
+
 
 
   function changeCountry(ele){
@@ -38,26 +47,25 @@ function App() {
   
   }
   
+  function changeProperty(ele){
+    console.log("enetertee")
+    setProperty(ele);
+    // setRefresh(!refresh);
+  }
 
+  function changeYear(ele1,ele2){
+    setYear(ele1);
+    setVal(ele2);
+  }
 
-
-  let numerical;
-  let categorical;
-
-  const selectChart=(chartN)=>{
-    setState(chartN);
-  };
-
-  const updatePCP=(arr)=>{
-    setMDSPCP(arr);
-  };
-
-  const selDimNumber=(n)=>{
-    setDimState(n);
-  };
+  function handleReset(){
+    setCountry('China');
+    setYear(null);
+    setProperty('Alcohol');
+  }
 
   useEffect(()=>{
-
+    console.log("here",property)
     axios({
       method: "GET",
       url:"http://localhost:8000/data"
@@ -68,83 +76,79 @@ function App() {
       // setScreeState(allRepos);
     });
 
-  },[state,country]);
+  },[state,country,property]);
  
 
   return (
     // <div style={{width:"100em",height:"100em","backgroundColor":"beige"}}>
-      <div style={{width:"100%",height:"60em",backgroundColor:"beige"}}>
-        <div className="header"> <center><b> LIFE EXPECTANCY</b></center></div>
+      <div style={{width:"100%",height:"30em"}}>
+        <div className='overlay'>
+          <video src={final3} autoPlay loop muted/>
+          <div className="content">
+            
+            <h2 style={{color:"white",marginLeft:"40%",width:"500px"}}>LIFE EXPECTANCY - {country}</h2>
+            <br/>
+            <button style={{position:"absolute",marginTop:"-45px",right:"10px",top:"-5"}} onClick={handleReset}>Reset</button>
+            <div className="box1">
+              {country && <PieChart country={country} property={property} changeProperty={changeProperty}/>}
+            </div>
+            <div className="box2">
+              { csvdata && <GeoChart data={data} csvdata={csvdata} country={country} changeCountry={changeCountry} changeProperty={changeProperty} changeYear={changeYear} />}
+
+            </div>
+            <div className="box3">
+              {country && <YearChart country={country} year={year} changeYear={changeYear} val={val}/>} 
+            </div>
+
+            
+              <div className='box4'>
+                <Pcp country={country} year={year} />
+              </div>
+              <div className='box5'>
+                
+                {<MultipleScatter country={country} property={property} />}
+                
+              </div>
+
+          </div>
+        {/* <div className='wrapper'>
+
+          <h3 style={{position:"absolute",marginLeft:"40%",marginTop:"0.1%"}}>LIFE EXPECTANCY - {country}</h3>
+          
+          <div className="box1">
+            {country && <PieChart country={country} changeProperty={changeProperty}/>}
+          </div>
+          
+          <div className="box2">
+            { csvdata && <GeoChart data={data} csvdata={csvdata} country={country} changeCountry={changeCountry} />}
+
+          </div>
+          <div className="box3">
+            {country && <YearChart country={country}/>} 
+          </div>
         
-        <div className="box2">
-          { csvdata && <GeoChart data={data} csvdata={csvdata} country={country} changeCountry={changeCountry} />}
+        <div>
+          <div className='box4'>
+            <Pcp country={country} />
+          </div>
+          <div className='box5'>
+            
+            {<MultipleScatter country={country} />}
+            
+          </div>
 
         </div>
-        <div className="box1">
-          {!country && csvdata && <BarChart csvdata={csvdata} country={country} changeCountry={changeCountry}/>}
-          {/* {country && <YearChart country={country}/>}  */}
-          {country && <PieChart country={country} />}
+
+
+
         </div>
-        {/* <div>
-          <Pcp country={country} />
-        </div> */}
+         */}
+         </div>
+          
+       
         
          
-          
-        
-        
-     
-       
-      {/* <br/>
-      <br/>
-      
-      <div class="wrapper">
-        <div className="box1" style={{backgroundColor:"red"}}>
-          <img style={{maxWidth:"100%",height:"400px"}} src={barchartimg} />
-        </div>
-        <div className="box2">
-          <img style={{maxWidth:"100%",height:"400px"}} src={worldmapimg} />
-        </div>
-        <div className="box1">
-          <img style={{maxWidth:"100%",height:"400px"}} src={blankimg} />
-        </div>
-      </div>
-      <br/>
-      <br/>
-      <div class="wrapper">
-        <div className="box1" style={{backgroundColor:"red"}}>
-          <img style={{maxWidth:"100%",height:"400px"}} src={blankimg} />
-        </div>
-        <div className="box2">
-          <img style={{maxWidth:"100%",height:"400px"}} src={pcpimg} />
-        </div>
-        <div className="box1">
-          <img style={{maxWidth:"100%",height:"400px"}} src={blankimg} />
-        </div>
-      </div> */}
-      
-      {/* <div className="pcp_chart_img">
-        <img style={{width:"100px"}} src={pcpimg} />
-      </div>
-      <div className="blank_chart_img">
-        <img style={{width:"30%"}} src={blankimg} />
-      </div> */}
-        {/* <div className="header"> <center><b> New York Housing Units by Building</b></center></div>
-          <center>
-            <NavBar changeChart={selectChart}/>
-          </center>
-          <div className="home">
-            {state===0 ? <HomePage numeric={numerical} categoric={categorical} /> :<div/>}
-          </div>
-          <center>
-            {state===1 ? <ScreePlot changeDim={selDimNumber} />  : <div/>}
-            {state===2 ? <BiPlot/> : <div/>}
-            {state===3 ? <ScatterPlotMatrix dimensionality={dimensionality}/> : <div/>}
-            {state===4 ? <ScatterPlot /> : <div/>}
-            {state===5 ? <MdsVariable updateStatePCP={updatePCP}/> : <div/>}
-            {state===6 ? <Pcp /> : <div/>}
-          </center> */}
-          {/* <WorldMap /> */}
+
     </div>
   );
 }

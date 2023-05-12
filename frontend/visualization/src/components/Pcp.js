@@ -5,13 +5,13 @@ import axios from 'axios';
 import '../css/Pcp.css';
 import { count, packSiblings } from 'd3';
 
- const Pcp = ({country}) => {
+ const Pcp = ({country,year}) => {
     let scatterRef = useRef(null);
     const [state, setState] = useState();
     const [dimensions, setDimensions] = useState();
     var margin = {top: 50, right: 50, bottom: 50, left: 50};
-    var width = 1400 - margin.left - margin.right;
-    var height = 500 - margin.top - margin.bottom;
+    var width = 1000 - margin.left - margin.right;
+    var height = 400 - margin.top - margin.bottom;
     var y = {};
     var dragging = {};
     var line = d3.line();
@@ -46,22 +46,7 @@ import { count, packSiblings } from 'd3';
         tempDims=dimensionz;
     }
 
-    const create_dimensions_msdpcp=(arr)=>{
-        let dimensionz =[];
-        let tempObj={};
-        for(let i=0;i<arr.length;i++)
-        {
-            tempObj={
-                    name: arr[i],
-                    scale: d3.scaleLinear().range([height, 0]),
-                    type: "number"
-                };
-            dimensionz.push(tempObj);
-        }
-        setDimensions(dimensionz);
-        tempDims=dimensionz;
-    };
-    
+   
     var x;
 
     useEffect(()=>{
@@ -72,11 +57,27 @@ import { count, packSiblings } from 'd3';
                 console.log("country",country)
                 console.log("before",parsedResponse)
                 let tmpData = []
-                parsedResponse.forEach((ele)=>{
-                    if(ele.Country==country){
-                        tmpData.push(ele);
-                    }
-                })
+                var i =0;
+                if(year){
+                    parsedResponse.forEach((ele)=>{
+                        if( ele.Year == year && i<20){
+                            i=i+1;
+                            tmpData.push(ele);
+                        }
+                        
+                    })
+                }
+                else{
+                    parsedResponse.forEach((ele)=>{
+                       
+                        if(ele.Country==country){
+                            tmpData.push(ele);
+                        }
+                    })
+
+                }
+                
+               
 
                 console.log("filtered data",tmpData)
                 parsedResponse = tmpData.length>0 ? tmpData : parsedResponse
@@ -96,27 +97,8 @@ import { count, packSiblings } from 'd3';
                 clearBoard();
                 draw();
             });
-        // }
-        // else if(mdsPcpButton==true){
-        //     axios.get('http://localhost:8000/mdspcp').then((repos) => {
-        //         const allRepos = repos.data;
-        //         let parsedResponse = JSON.parse(allRepos);
-        //         let tempState = parsedResponse;
-        //         console.log("pcp data",tempState)
-        //         create_dimensions_msdpcp(props.readFromMDSV);
-        //             tempDims.forEach(function(dimension) {
-        //                 dimension.scale.domain(dimension.type === "number"
-        //                     ? d3.extent(parsedResponse, function(d) { return +d[dimension.name]; })
-        //                     : parsedResponse.map(function(d) { return d[dimension.name]; }).sort());
-        //             });
-        //         setState(tempState);
-        //         clearBoard();
-        //         draw();
-        //     });
-        // }
-        // clearBoard();
-        // draw();
-    },[country]);
+       
+    },[country,year]);
 
     useEffect(()=>{
         clearBoard();
@@ -204,7 +186,7 @@ import { count, packSiblings } from 'd3';
                                 .data(state)
                                 .enter().append("path")
                                 .attr("d", path)
-                                .style("stroke",function(d){return "coral"});
+                                .style("stroke",function(d){return "#a5a86a"});
             
                 var g = svg.selectAll(".dimension")
                             .data(dimensions)
@@ -215,6 +197,7 @@ import { count, packSiblings } from 'd3';
                             .on("start", function(d) {
                                     dragging[d.name] = x(d.name);
                                     background_lines.attr("visibility","hidden");
+        
                                     })
                             .on("drag", function(d) {
                                 dragging[d.name] = Math.min(width, Math.max(0, d3.event.x));
@@ -230,9 +213,10 @@ import { count, packSiblings } from 'd3';
                                 background_lines
                                     .attr("d", path)
                                     .transition()
-                                    .delay(500)
+                                    // .delay(500)
                                     .duration(0)
-                                    .attr("visibility", null);
+                                    .attr("visibility", null)
+                                    
                             })
                         );
                 
@@ -247,7 +231,7 @@ import { count, packSiblings } from 'd3';
                 .style("text-anchor", "middle")
                 .attr("class", "axis-label")
                 .attr("y", -19)
-                .style("fill","black")
+                // .style("fill","black")
                 .style("font-size",7)
                 .text(function(d) { return d.name; });
                 
@@ -270,17 +254,13 @@ import { count, packSiblings } from 'd3';
     return(
         <div>
            {
-              state ? <div>
+              state ? <div style={{backgroundColor:"#101c3c"}}>
                   <svg ref={scatterRef}></svg>
-                  {/* <div className="legend"><b>Color Legend</b><br/>
-                        Red   -  Cluster 1<br/>
-                        Blue  -  Cluster 2<br/>
-                        Black-  Cluster 3<br/>
-                        Green  -  Cluster 4<br/>
-                  </div> */}
+                  <h3 style={{"color":"white","marginLeft":"32%",marginTop:"-4%",position:"relative"}}>Parallel Co-ordinate Plot</h3>
                   <br/>
                   </div> : <div />
             }
+            
         </div>
     );
 

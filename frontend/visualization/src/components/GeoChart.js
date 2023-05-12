@@ -4,15 +4,11 @@ import {select,scaleLinear} from "d3";
 
 // import useResizeObserver from "./useResizeObserver";
 
-function GeoChart({data,csvdata,country,changeCountry}){
+function GeoChart({data,csvdata,country,changeCountry,changeProperty,changeYear}){
     
     
     const svgRef = useRef(null);
     const wrapperRef = useRef();
-
-    // const [selectedCountry,setSelectedCountry] = useState(country);
-
-    // console.log("data",data.features[0])
 
     const clearBoard=()=>{
         const accessToRef = select(svgRef.current)
@@ -21,7 +17,6 @@ function GeoChart({data,csvdata,country,changeCountry}){
 
     const draw = ()=>{
 
-         // const accessToRef = select(svgRef.current);
          const width=800;
          const height = 450;
  
@@ -43,18 +38,20 @@ function GeoChart({data,csvdata,country,changeCountry}){
  
          const pathGenerator = geoPath().projection(projection);
  
-         const tooltip = select('.tooltip');
- 
-         // accessToRef.selectAll(".country")
-         // .data(data.features)
-         // .append("path")
-         // .attr("class", "country")
-         // .attr("d", feature => pathGenerator(feature));
          const accessToRef = select(svgRef.current)
                                      .attr("height",height)
                                      .attr("width",width)
+                                     .style("margin-left","-2%")
                                     //  .style("background-color","#006699")
                                      // .attr("transform", "translate(" + margin_left + "," + margin_top + ")");
+
+        var tooltip = select("body")
+                                     .append("div")
+                                     .style("position", "absolute")
+                                     .style("z-index", "10")
+                                     .style("visibility", "hidden")
+                                     .style("background", "#000")
+                                     .text("a simple tooltip");
          accessToRef.selectAll(".country")
                      .data(data.features)
                      .enter()
@@ -74,30 +71,33 @@ function GeoChart({data,csvdata,country,changeCountry}){
                                  }
                              }
                             //  console.log("dele",selectedCountry)
-                             if(index==-1)return "#ccc";
+                             if(index==-1)return "beige";
                              if(req_name==country)return "green";
                              
-                             return colorScale(csvdata.expectancy[index])
+                            //  return colorScale(csvdata.expectancy[index])
+                            return "#87536a";
+                            return "cyan";
                          })
                         //  .on('mouseover',(feature) =>{
                  
                         //      console.log("mouse over",feature)
                         //      var req_name = feature.properties.name;
-                        //      var index = -1;
-                        //      for(var i=0;i<csvdata.country.length;i++){
-                        //          if(csvdata.country[i]==req_name){
-                        //              console.log("yes");
-                        //              index = i;
-                        //              break;
-                        //          }
-                        //      }
-                        //      if(index!=-1){
-                        //         return tooltip
-                        //          .style('opacity', 1)
-                        //          .html(csvdata.expectancy[index]) // Replace with your desired tooltip content
-                        //          // .style('left', `${event.pageX}px`)
-                        //          // .style('top', `${event.pageY}px`);
-                        //      }
+                        //      tooltip.text(req_name); return tooltip.style("visibility", "visible");
+                        //     //  var index = -1;
+                        //     //  for(var i=0;i<csvdata.country.length;i++){
+                        //     //      if(csvdata.country[i]==req_name){
+                        //     //          console.log("yes");
+                        //     //          index = i;
+                        //     //          break;
+                        //     //      }
+                        //     //  }
+                        //     //  if(index!=-1){
+                        //     //     return tooltip
+                        //     //      .style('opacity', 1)
+                        //     //      .html(csvdata.expectancy[index]) // Replace with your desired tooltip content
+                        //     //      // .style('left', `${event.pageX}px`)
+                        //     //      // .style('top', `${event.pageY}px`);
+                        //     //  }
                              
                         //  })
                          // .on('mouseout', () => {
@@ -109,12 +109,14 @@ function GeoChart({data,csvdata,country,changeCountry}){
                              var req_name = feature.properties.name;
                              if (csvdata.country.includes(req_name)) {
                                // Perform actions when a clickable country is clicked
-                               if(country==req_name){
-                                changeCountry(null)
-                               }
-                               else{
+                            //    if(country==req_name){
+                            //     changeCountry(null)
+                            //    }
+                            //    else{
                                 changeCountry(req_name);
-                               }
+                                changeProperty("Alcohol");
+                                changeYear(null);
+                            //    }
                                 // setSelectedCountry(req_name);
                                 
                                
@@ -134,7 +136,7 @@ function GeoChart({data,csvdata,country,changeCountry}){
 
 
     return (
-        <div ref={wrapperRef} style={{ marginBottom: "2rem" }}>
+        <div ref={wrapperRef}  style={{backgroundColor:"#101c3c",height:"450px",marginBottom: "2rem"}}>
           <svg ref={svgRef}></svg>
         </div>
       );
